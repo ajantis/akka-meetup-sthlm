@@ -1,6 +1,6 @@
 # Green Belt Akka
 
-This doucment will briefly introduce some important parts of Akka _specific for the implementation of this kata_. 
+This document will briefly introduce some important parts of Akka _specific for the implementation of this kata_.
 
 The official Akka documentation is really good (if we may say so ourselves): [Akka Docs](http://doc.akka.io/docs/akka/2.1.2/)  
 
