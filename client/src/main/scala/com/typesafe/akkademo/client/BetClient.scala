@@ -9,7 +9,7 @@ import scala.concurrent.Await
 import akka.util.Timeout
 import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
-import com.typesafe.akkademo.common.{ Bet, RetrieveBets }
+import com.typesafe.akkademo.common.RetrieveBets
 import com.typesafe.akkademo.common.Bet
 
 object BetClient extends App {
