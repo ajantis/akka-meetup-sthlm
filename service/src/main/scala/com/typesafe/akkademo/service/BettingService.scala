@@ -62,14 +62,16 @@ class BettingService extends Actor with ActorLogging {
     }
 
   private def updateProcessor(p: ActorRef): Unit = {
-    log.info("Processor is alive!")
+    log.debug("Received a heartbeat from processor.")
     processor = Some((System.currentTimeMillis(), p))
   }
 
   private def processUnhandledBets(): Unit = {
-    log.info(s"We have ${bets.size} unhandled bets..")
-    getProcessor.foreach { p ⇒
-      bets.values.foreach { p ! _ }
+    if (!bets.isEmpty) {
+      log.info(s"We have ${bets.size} unhandled bets.. Sending.")
+      getProcessor.foreach { p ⇒
+        bets.values.foreach { p ! _ }
+      }
     }
   }
 }
