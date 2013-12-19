@@ -29,7 +29,7 @@ class ReallyUnstableResource extends UnstableResource {
   def save(id: Int, player: String, game: Int, amount: Int) = {
     if (id % (randomizer.nextInt(10) + 10) == 0) throw new RuntimeException("Hey, I did not count on this happening...")
     if (id % (randomizer.nextInt(17) + 17) == 0) throw new DatabaseFailureException("Help. The database's gone haywire!")
-    if (id % (randomizer.nextInt(121) + 50) == 0) System.exit(1)
+    if (id % (randomizer.nextInt(1021) + 50) == 0) System.exit(1)
 
     if (!bets.contains(id)) {
       bets += id -> Bet(player, game, amount)
