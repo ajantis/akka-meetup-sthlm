@@ -22,16 +22,18 @@ object BetClient extends App {
         provider = "akka.remote.RemoteActorRefProvider"
       }
       remote {
-        transport = "akka.remote.netty.NettyRemoteTransport"
-        netty {
+        enabled-transports = ["akka.remote.netty.tcp"]
+        netty.tcp {
           hostname = "127.0.0.1"
           port = 2661
         }
       }
-    }""")
+      log-dead-letters = off
+    }
+    betting-service-actor = "akka.tcp://BettingServiceActorSystem@127.0.0.1:2552/user/bettingService"""")
 
   val system = ActorSystem("TestActorSystem", ConfigFactory.load(config))
-  val service = system.actorFor("akka://BettingServiceActorSystem@127.0.0.1:2552/user/bettingService")
+  val service = system.actorFor(system.settings.config.getString("betting-service-actor"))
 
   try {
     // create the list of bets

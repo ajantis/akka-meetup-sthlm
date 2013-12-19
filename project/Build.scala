@@ -7,7 +7,7 @@ import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 object AkkaDemoBuild extends Build {
   val Organization = "akkademo"
   val Version      = "1.0-SNAPSHOT"
-  val ScalaVersion = "2.10.1"
+  val ScalaVersion = "2.10.3"
 
   lazy val akkademo = Project(
     id = "akkademo",
@@ -87,7 +87,7 @@ object Dependencies {
 
 object Dependency {
   object Version {
-    val Akka      = "2.1.2"
+    val Akka      = "2.2.3"
     val Scalatest = "1.9.1"
     val JUnit     = "4.10"
   }
