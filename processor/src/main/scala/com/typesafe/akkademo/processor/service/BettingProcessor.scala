@@ -3,10 +3,22 @@
  */
 package com.typesafe.akkademo.processor.service
 
-import akka.actor.{ ActorLogging, Actor }
-import com.typesafe.akkademo.common.{ PlayerBet, RetrieveBets }
+import akka.actor._
+import com.typesafe.akkademo.common.{ RegisterProcessor, RetrieveBets, PlayerBet }
+import com.typesafe.akkademo.processor.repository.{ DatabaseFailureException, ReallyUnstableResource, UnstableResource }
+import akka.actor.SupervisorStrategy.Resume
+import scala.concurrent.duration._
+import akka.actor.OneForOneStrategy
 
 class BettingProcessor extends Actor with ActorLogging {
+  import BettingProcessor._
+
+  implicit val repo = createRepo
+  val service = createService
+  val worker = createWorker
+
+  import context.dispatcher
+  val scheduler = context.system.scheduler.schedule(1 second, 1 second, self, SendHeartbeatService)
 
   /**
    * TASKS :
@@ -15,8 +27,32 @@ class BettingProcessor extends Actor with ActorLogging {
    * Supervise worker -> handle errors
    * Send confirmation message back to Betting service
    */
-  def receive = {
-    case bet: PlayerBet ⇒
-    case RetrieveBets   ⇒
+
+  override val supervisorStrategy = OneForOneStrategy() {
+    case _: RuntimeException         ⇒ Resume
+    case _: DatabaseFailureException ⇒ Resume
   }
+
+  override def postStop() {
+    scheduler.cancel()
+  }
+
+  def receive = {
+    case cmd: PlayerBet            ⇒ worker.forward(cmd)
+    case cmd @ RetrieveBets        ⇒ worker.forward(cmd)
+    case SendHeartbeatService      ⇒ service ! RegisterProcessor
+  }
+
+  def createRepo: UnstableResource = new ReallyUnstableResource
+
+  def createWorker(implicit resource: UnstableResource): ActorRef =
+    context.actorOf(Props(new ProcessorWorker(resource)), "worker")
+
+  def createService: ActorRef =
+    context.actorFor(context.system.settings.config.getString("betting-service-actor"))
+}
+
+object BettingProcessor {
+  case object SendHeartbeatService
+  case object ProcessorHeartbeat
 }
