@@ -12,6 +12,6 @@ class ProcessorWorker(repo: UnstableResource) extends Actor {
       sender ! ConfirmationMessage(b.id)
 
     case RetrieveBets ⇒
-      sender ! repo.findAll.toList
+      sender ! Vector(repo.findAll)
   }
 }
