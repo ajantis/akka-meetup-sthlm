@@ -2,9 +2,10 @@ package com.typesafe.akkademo.processor.service
 
 import akka.actor.Actor
 import com.typesafe.akkademo.common.{ ConfirmationMessage, RetrieveBets, PlayerBet }
-import com.typesafe.akkademo.processor.repository.{ UnstableResource, ReallyUnstableResource }
+import com.typesafe.akkademo.processor.repository.UnstableResource
 
-class ProcessorWorker(repo: UnstableResource) extends Actor {
+class ProcessorWorker(resource: () ⇒ UnstableResource) extends Actor {
+  val repo = resource()
 
   def receive = {
     case b: PlayerBet ⇒

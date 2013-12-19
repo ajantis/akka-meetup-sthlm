@@ -13,9 +13,10 @@ import akka.actor.OneForOneStrategy
 class BettingProcessor extends Actor with ActorLogging {
   import BettingProcessor._
 
-  implicit val repo = createRepo
   val service = createService
-  val worker = createWorker
+  lazy val worker = createWorker
+
+  implicit val repo: () ⇒ UnstableResource = () ⇒ createRepo
 
   import context.dispatcher
   val scheduler = context.system.scheduler.schedule(1 second, 1 second, self, SendHeartbeatService)
@@ -38,18 +39,17 @@ class BettingProcessor extends Actor with ActorLogging {
   }
 
   def receive = {
-    case cmd: PlayerBet            ⇒ worker.forward(cmd)
-    case cmd @ RetrieveBets        ⇒ worker.forward(cmd)
-    case SendHeartbeatService      ⇒ service ! RegisterProcessor
+    case cmd: PlayerBet       ⇒ worker.forward(cmd)
+    case cmd @ RetrieveBets   ⇒ worker.forward(cmd)
+    case SendHeartbeatService ⇒ service ! RegisterProcessor
   }
 
   def createRepo: UnstableResource = new ReallyUnstableResource
 
-  def createWorker(implicit resource: UnstableResource): ActorRef =
-    context.actorOf(Props(new ProcessorWorker(resource)), "worker")
+  def createWorker(implicit resource: () ⇒ UnstableResource): ActorRef =
+    context.actorOf(Props.apply(new ProcessorWorker(resource)), "worker")
 
-  def createService: ActorRef =
-    context.actorFor(context.system.settings.config.getString("betting-service-actor"))
+  def createService = context.actorFor(context.system.settings.config.getString("betting-service-actor"))
 }
 
 object BettingProcessor {
